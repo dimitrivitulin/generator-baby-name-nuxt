@@ -33,8 +33,8 @@ interface OptionsState {
 
 const options = reactive<OptionsState>({
         gender : Gender.GIRL,
-        popularity :Popularity.TRENDY,
-        length : Length.ALL,
+        popularity :Popularity.NORMAL,
+        length : Length.SHORT,
 
 });
 
@@ -1696,17 +1696,36 @@ const options = reactive<OptionsState>({
   
 ];
   
-const computeSelectedNames = () =>{
+const computeSelectedNames = () => {
   const filteredNames = names
-    .filter((name) => name.gender === options.gender )
+    .filter((name) => name.gender === options.gender)
     .filter((name) => name.popularity === options.popularity)
     .filter((name) => {
-      if(options.length === Length.ALL) return true
-      else return name.length === options.length
-    })
-    selectedNames.value = filteredNames.map((name) => name.name);
-}
+      if (options.length === Length.ALL) return true;
+      else return name.length === options.length;
+    });
+
+  selectedNames.value = filteredNames.map((name) => name.name);
+};
 const selectedNames = ref<string[]>([]);
+const optionsArray = [
+  {
+    title: "Choisissez un genre",
+    category : "gender",
+    buttons : [Gender.GIRL, Gender.UNISEX, Gender.BOY]
+  },
+  {
+    title: "Popularité du Nom",
+    category : "popularity",
+    buttons : [Popularity.TRENDY, Popularity.NORMAL, Popularity.UNIQUE]
+  },
+  {
+    title: "Longueur du nom",
+    category : "length",
+    buttons : [Length.SHORT, Length.LONG, Length.ALL]
+  }
+
+];
 
 </script>
 <template>
@@ -1714,60 +1733,16 @@ const selectedNames = ref<string[]>([]);
     <h1>Générateur de Noms de Bébé </h1>
     <p>Trouvez un Nom pour votre futur Bébé</p>
     <div class="options-container">
-      <div class="option-container">
-        <h4>Choisissez un genre</h4>
-        <div class="option-buttons">
-          <button class="option" 
-          :class="options.gender === Gender.BOY && 'option-active'"
-          @click="options.gender = Gender.BOY" 
-          >Garçon</button>
-          <button class="option" 
-          :class="options.gender === Gender.GIRL && 'option-active'"
-          @click="options.gender = Gender.GIRL" 
-          >Fille</button>
-          <button class="option" 
-          :class="options.gender === Gender.UNISEX && 'option-active'"
-          @click="options.gender = Gender.UNISEX" 
-          >Unisexe</button>
-        </div>
-      </div>
-      <div class="option-container">
-         <h4>Popularité du Nom</h4>
-        <div class="option-buttons">
-          <button class="option" 
-          :class="options.popularity === Popularity.TRENDY && 'option-active'"
-          @click="options.popularity = Popularity.TRENDY" 
-          >Hype</button>
-          <button class="option" 
-          :class="options.popularity === Popularity.NORMAL && 'option-active'"
-          @click="options.popularity = Popularity.NORMAL" 
-          >Commun</button>
-          <button class="option" 
-          :class="options.popularity === Popularity.UNIQUE && 'option-active'"
-          @click="options.popularity = Popularity.UNIQUE" 
-          >Original</button>
-        </div>
-      </div>
-      <div class="option-container">
-         <h4>Longueur du nom</h4>
-        <div class="option-buttons">
-          <button class="option" 
-          :class="options.length === Length.LONG && 'option-active'"
-          @click="options.length = Length.LONG"
-          >Long</button>
-          <button class="option" 
-          :class="options.length === Length.SHORT && 'option-active'"
-          @click="options.length = Length.SHORT"
-          >Court</button>
-          <button class="option" 
-          :class="options.length === Length.ALL && 'option-active'"
-          @click="options.length = Length.ALL"
-          >Tous</button>
-        </div>
+      <Option  v-for=" option in optionsArray" 
+        :key="option.title"
+        :option="option" 
+        :options="options"
+        />
+       
       <button class="primary" @click="computeSelectedNames">Choisir un Nom</button>
-      </div>
+      
     </div>
-      <div class="cards-container">
+      <div class="cards-container"> 
         <div v-for="name in selectedNames" :key="name" class="card">
           <img src="./assets/baby_name.png" alt="">
            <p >{{name}}</p>
@@ -1813,13 +1788,7 @@ p{
   font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif ;
   font-weight: 500;
 }
-h4{
-  font-size: 1.75rem;
-  color:#fff;
-  font-family: 'Asap', sans-serif;
-  font-weight: 500;
-  font-style: italic;
-}
+
 .container p{
   padding-bottom: 30px;
 }
@@ -1829,13 +1798,10 @@ h4{
   border-radius: 0 0 60px 60px ;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 20px;
   box-shadow: inset -5px -5px 10px rgba(255, 255, 255, 0.367);
 }
-.option-buttons{
-  padding: 30px 0;
-}
-
 button{
   border: none;
   outline: none;
@@ -1849,14 +1815,6 @@ button{
   font-weight: 500;
   box-shadow: 3px 3px 15px rgba(128, 128, 128, 0.31);
 }
-.option-active{
- outline:1px solid linen;
- transform: scale(1.1);
- background-color: #B7DAEB;
- color: #fff;
-  box-shadow: 3px 4px 20px rgba(128, 128, 128, 0.651);
-}
-
 .primary{
   background-color: crimson;
   color: #fff;
@@ -1867,6 +1825,7 @@ button{
   cursor: pointer;
   width: 150px;
 }
+
 .cards-container{
   display: flex;
   flex-wrap: wrap;
@@ -1891,7 +1850,8 @@ button{
   padding: 5px;
   border-radius: 10px;
   background-color: #F4B58E;
-    z-index: 10;
+  
+  z-index: 10;
 }
 
 
